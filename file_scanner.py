@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-iterates over files with a log for interrupted use
+iterates over files in specified list of files or directories
 
 Provides a class for iterating over the specified files, whether given
 as individual files or directories.
@@ -31,8 +31,7 @@ class FileScanner( object ):
 
     Returns filenames as strings when iterated over.
 
-    Passes through IOException if raised when trying to open
-    directories.
+    Raises IOError if filenames do not exist.
     """
     def __init__( self, files=[] ):
         """
@@ -40,8 +39,10 @@ class FileScanner( object ):
         is done at this stage.  The files should be a list of strings.
         """
         self._files = files
+
         # Reverse the list so that pop() works in user-logical order.
         self._files.reverse()
+
         return
 
     def __iter__( self ):
@@ -51,7 +52,7 @@ class FileScanner( object ):
         """
         return self
 
-    def next( self ):
+    def get_next_filename( self ):
         """
         Look at the next specified file.  If it is a simple file,
         return it; if it is a directory, expand it to its constituent
@@ -83,7 +84,14 @@ class FileScanner( object ):
         filelist = glob( this_file + "/*" )
         filelist.reverse()
         self._files.extend( filelist )
-        return self.next()
+        return self.get_next_filename()
+
+    def next( self ):
+        """
+        Implement iteration by calling get_next_filename() to
+        ... well, y’know.
+        """
+        return self.get_next_filename()
 
 if __name__ == '__main__':
     pass

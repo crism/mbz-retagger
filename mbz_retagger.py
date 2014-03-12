@@ -27,7 +27,7 @@ __version__ = 0.1
 
 import argparse
 from os.path import expanduser
-from file_scanner import FileScanner
+from audio_file_scanner import AudioFileScanner
 
 def main():
     """
@@ -47,14 +47,13 @@ def main():
     args = parser.parse_args()
 
     # Initialize the file scanner.
-    file_scanner = FileScanner( args.files )
+    file_scanner = AudioFileScanner( args.files )
 
     for f in file_scanner:
-        print( f )
+        print( f["album"], f["title"], f["artist"], f["musicbrainz_trackid"] )
 
     # spin up a mbz client
     # iterate over files, hitting mbz for each
-    pass
 
 if __name__ == "__main__":
     main()
