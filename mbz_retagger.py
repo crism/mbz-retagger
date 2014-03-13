@@ -18,7 +18,7 @@ warranty; it might destroy all your data.  In fact, it probably will.
 """
 
 __author__ = u"Christopher R. Maden <crism@maden.org>"
-__date__ = u"11 March 2014"
+__date__ = u"13 March 2014"
 __title__ = u"MusicBrainz Retagger"
 __version__ = 0.1
 
@@ -26,8 +26,9 @@ __version__ = 0.1
 # repeatedly, will pick up where it left off.
 
 import argparse
-from os.path import expanduser
 from audio_file_scanner import AudioFileScanner
+from os.path import expanduser
+from retagger import MBzRetagger
 
 def main():
     """
@@ -38,10 +39,15 @@ def main():
     # Parse user options.
     parser = argparse.ArgumentParser(
         description="updates metadata in audio files",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        version='%s %0.1f' % (__title__, __version__) )
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument( "-v", "--version", action="version",
+                         version="%s %0.1f" %
+                             (__title__, __version__) )
     parser.add_argument( "-t", "--test", action="store_true",
                          help="do not actually write changes out")
+    parser.add_argument( "-u", "--user",
+                         help="email address to pass to MusicBrainz" )
     parser.add_argument( "files", nargs="+",
                          help="audio files or directories to read" )
     args = parser.parse_args()
@@ -49,11 +55,12 @@ def main():
     # Initialize the file scanner.
     file_scanner = AudioFileScanner( args.files )
 
-    for f in file_scanner:
-        print( f["album"], f["title"], f["artist"], f["musicbrainz_trackid"] )
+    # Initialize the MusicBrainz retagger.
+    retagger = MBzRetagger( args.test, contact=args.user )
 
-    # spin up a mbz client
-    # iterate over files, hitting mbz for each
+    # Iterate over the audio files, retagging each one.
+    for audio_file in file_scanner:
+        retagger.retag( audio_file )
 
 if __name__ == "__main__":
     main()
